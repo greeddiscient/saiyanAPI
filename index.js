@@ -3,7 +3,7 @@ const express = require('express');
 const path = require('path');
 const MongoClient    = require('mongodb').MongoClient;
 const bodyParser     = require('body-parser');
-const ObjectID = require('mongodb').ObjectID;
+const ObjectId = require('mongodb').ObjectId;
 const dburl             = "mongodb://djurus:djurus710@ds131313.mlab.com:31313/heroku_d1s0s3m3"
 
 
@@ -33,7 +33,27 @@ MongoClient.connect(dburl, (err, db) => {
       }
     });
   })
+  app.get('/api/round/:roundid',(req,res)=>{
+    var obj=[];
+    console.log(req.params.roundid)
+    db.collection('rounds').find(ObjectId(req.params.roundid), (err, result) => {
+      if (err) {
+        res.send({ 'error': 'An error has occurred' });
+      } else {
 
+        result.each(function(err, docs){
+            console.log("item", docs);
+
+            if (docs == null){
+                res.send(obj);
+            }
+            obj.push(docs);
+
+        });
+
+      }
+    });
+  })
   app.get('/api/rounds/',(req,res)=>{
     var obj=[];
     db.collection('rounds').find({}, (err, result) => {
