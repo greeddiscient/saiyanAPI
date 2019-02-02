@@ -20,7 +20,7 @@ router.post('/login', async (req, res) => {
     const passMatched = await bcrypt.compare(password, user.password);
 
     if (passMatched) {
-      const payload = { id: user.id, name: user.name, email: user.email };
+      const payload = { id: user.id };
       return jwt.sign(payload, keys.secretKey, { expiresIn: 36000 }, (err, token) => {
         return res.json({
           success: true,
@@ -78,6 +78,27 @@ router.post('/register', (req, res) => {
           });
       });
     });
+  });
+});
+
+// @route GET api/users/current
+// @desc Getting the profile of current user
+// @access private
+router.get('/current', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  const { id } = req.user;
+  const user = await User.findOne({ id });
+  const errors = {};
+
+  if (user) {
+    return res.json({
+      email: user.email,
+      name: user.name
+    });
+  }
+  errors.user = 'User not found';
+  return res.status(400).json({
+    success: false,
+    errors
   });
 });
 
